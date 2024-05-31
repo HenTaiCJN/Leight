@@ -1,11 +1,10 @@
 import _thread
-import gc
 import math
 import time
 
 from machine import Pin, DAC
 
-from ft import frameclick, framedclick, framedown, framepress
+import dbops
 
 
 class speaker:
@@ -34,20 +33,22 @@ class speaker:
         _thread.start_new_thread(self.tone_thread, [framename])
 
     def tone_thread(self, framename):
-        d = {"frameclick": frameclick, "framedclick": framedclick, "frameup": framedown, "framedown": framedown, "framepress": framepress}
-        frame = d[framename]
-
-        Pin(15, Pin.OUT, value=0)
-        if framename != "framedown":
-            for i in frame:
-                self.dac.write(i)
-                time.sleep_us(int(1000000 / 6000))
+        if framename == "frameup":
+            frame = dbops.get_font("framedown")
         else:
+            frame = dbops.get_font(framename)
+        Pin(15, Pin.OUT, value=0)
+
+        if framename == "frameup":
             for i in range(len(frame) - 1, -1, -1):
                 self.dac.write(frame[i])
                 time.sleep_us(int(1000000 / 8000))
+        else:
+            for i in frame:
+                self.dac.write(i)
+                time.sleep_us(int(1000000 / 6000))
+
         self.dac.write(0)
 
         Pin(15, Pin.OUT, value=1)
-        gc.collect()
         _thread.exit()

@@ -1,23 +1,26 @@
-import _thread
-import time
-
-
-def thread1():
-    while 1:
-        print(11)
-        time.sleep(1)
-
-
-def thread2(t_id):
-    i = 0
-    while i < 5:
-        i += 1
-        time.sleep(1)
-    _thread.exit()
-
-
-a = _thread.start_new_thread(thread1, [])
-_thread.start_new_thread(thread2, [])
-
-while 1:
-    time.sleep(1)
+# import json
+#
+# from ft import font, frameclick, framedown, framepress, framedclick
+# import btree
+#
+# try:
+#     f = open("fontdb", "r+b")
+# except OSError:
+#     f = open("fontdb", "w+b")
+#
+# db = btree.open(f)
+# keys = font.keys()
+#
+# for i in keys:
+#     db[i.encode('utf-8')] = json.dumps(font[i]).encode('utf-8')
+# db[b'frameclick'] = json.dumps(frameclick).encode('utf-8')
+# db[b'framedown'] = json.dumps(framedown).encode('utf-8')
+# db[b'framepress'] = json.dumps(framepress).encode('utf-8')
+# db[b'framedclick'] = json.dumps(framedclick).encode('utf-8')
+#
+# db.flush()
+# db.close()
+# f.close()
+import dbops
+import fontdb
+print(dbops.get_font('a'))

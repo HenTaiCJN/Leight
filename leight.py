@@ -4,9 +4,10 @@
 import _thread
 import random
 
+import gc
 import neopixel
 import time
-from machine import Pin, PWM
+from machine import Pin, PWM, ADC
 
 import dbops
 
@@ -179,6 +180,10 @@ class _led:
             blink_star_stop = False
             _thread.start_new_thread(self.blink_star, [])
 
+    @staticmethod
+    def get_lightness():
+        return dbops.get_int('lightness')
+
 
 led = _led()
 
@@ -229,3 +234,94 @@ class _rgb:
 
 
 rgb = _rgb()
+
+
+class ldr:
+    def __init__(self):
+        self.adc = ADC(Pin(34, Pin.IN))
+        self.adc.width(ADC.WIDTH_12BIT)
+        self.adc.atten(ADC.ATTN_11DB)
+
+    def read(self):
+        return self.adc.read()
+
+
+class hall:
+    def __init__(self):
+        self.pin = Pin(35, Pin.IN)
+
+    def read(self):
+        return self.pin.value()
+
+
+class radar:
+    def __init__(self):
+        self.pin = Pin(5, Pin.IN)
+
+    def read(self):
+        return self.pin.value()
+
+
+class char:
+    @classmethod
+    def display(cls, text):
+        from lib.dispchar import char
+        char.display(text)
+        gc.collect()
+
+
+class matrix:
+    @classmethod
+    def display(cls, m):
+        led.led_ctrl_multiple(m)
+
+
+class wifi:
+    import lib.wificonnect as wc
+    def __init__(self):
+        pass
+
+    @classmethod
+    def connect(cls, ssid, psd, timeout=10000):
+        cls.wc.start()
+        cls.wc.connect(ssid, psd, timeout)
+        gc.collect()
+
+    @classmethod
+    def close(cls):
+        cls.wc.close()
+        gc.collect()
+
+    @classmethod
+    def status(cls):
+        cls.wc.status()
+
+    @classmethod
+    def info(cls):
+        cls.wc.info()
+
+
+class mqttclient:
+    from lib.mqtt import MQTTClient
+    def __init__(self):
+        pass
+
+    @classmethod
+    def connect(cls, server, port, client_id='', user='', psd=''):
+        cls.MQTTClient.connect(server=server, port=port, client_id=client_id, user=user, psd=psd)
+
+    @classmethod
+    def connected(cls):
+        return cls.MQTTClient.connected()
+
+    @classmethod
+    def publish(cls, topic, content):
+        cls.MQTTClient.publish(topic=topic, content=content)
+
+    @classmethod
+    def message(cls, topic):
+        return cls.MQTTClient.receive(topic=topic)
+
+    @classmethod
+    def received(cls, topic, callback):
+        cls.MQTTClient.Received(topic=topic, callback=callback)

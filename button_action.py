@@ -14,67 +14,24 @@ event_user = {'touch1_click': None, 'touch1_dclick': None, 'touch1_longClick': N
               'touch1_to_touch2': None, 'touch2_to_touch1': None, 'touch1_and_touch2': None,
               }
 
-"""touch1为B，touch2为A"""
+"""touch1为A，touch2为B"""
+
+mode = dbops.get('mode')
 
 
-# b单击,关灯
-def touch1_click():
-    def rgb_change():
-        rgb.write([0, 2], 255, 255, 255)
-        time.sleep_ms(50)
-        rgb.write([0, 2], 0, 0, 0)
-        rgb.write([1], 255, 255, 255)
-        time.sleep_ms(50)
-        rgb.write([0, 1, 2], 0, 0, 0)
-        time.sleep_ms(50)
+def rgb1_color():
+    if mode == 'defaultmode':
         rgb.write([1], 0, 0, 255)
-
-    speaker.click_tone("frameclick")
-    if event_user['touch1_click'] is not None:
-        event_user['touch1_click']()
     else:
-        _thread.start_new_thread(rgb_change, [])
-        time.sleep_ms(10)
-        led.off()
-
-
-# b双击,最小亮度
-def touch1_dclick():
-    def rgb_change():
-        rgb.write([1], 255, 255, 255)
-        time.sleep_ms(50)
-        rgb.write([1], 0, 0, 0)
-        time.sleep_ms(50)
-        rgb.write([1], 255, 255, 255)
-        time.sleep_ms(50)
-        rgb.write([1], 0, 0, 255)
-
-    speaker.click_tone("framedclick")
-    if event_user['touch1_dclick'] is not None:
-        event_user['touch1_dclick']()
-    else:
-        _thread.start_new_thread(rgb_change, [])
-        time.sleep_ms(10)
-        led.set_lightness(0)
-
-
-# b长按
-def touch1_longClick():
-    speaker.click_tone("framepress")
-    if event_user['touch1_longClick'] is not None:
-        event_user['touch1_longClick']()
-    else:
-        global light_mode
-        light_mode += 1
-        led.light_mode(light_mode%3)
+        rgb.write([1], 0, 255, 0)
 
 
 # a单击,开灯
-def touch2_click():
+def touch1_click():
     def rgb_change():
         rgb.write([1], 255, 255, 255)
         time.sleep_ms(50)
-        rgb.write([1], 0, 0, 255)
+        rgb1_color()
 
     speaker.click_tone("frameclick")
     if event_user['touch1_click'] is not None:
@@ -86,7 +43,7 @@ def touch2_click():
 
 
 # a双击,最大亮度
-def touch2_dclick():
+def touch1_dclick():
     def rgb_change():
         rgb.write([1], 255, 255, 255)
         time.sleep_ms(50)
@@ -94,7 +51,7 @@ def touch2_dclick():
         time.sleep_ms(50)
         rgb.write([1], 255, 255, 255)
         time.sleep_ms(50)
-        rgb.write([1], 0, 0, 255)
+        rgb1_color()
 
     speaker.click_tone("framedclick")
     if event_user['touch1_dclick'] is not None:
@@ -106,14 +63,66 @@ def touch2_dclick():
 
 
 # a长按
-def touch2_longClick():
+def touch1_longClick():
     speaker.click_tone("framepress")
     if event_user['touch1_longClick'] is not None:
         event_user['touch1_longClick']()
     else:
         global light_mode
         light_mode -= 1
-        led.light_mode(light_mode%3)
+        led.light_mode(light_mode % 3)
+
+
+# b单击,关灯
+def touch2_click():
+    def rgb_change():
+        rgb.write([0, 2], 255, 255, 255)
+        time.sleep_ms(50)
+        rgb.write([0, 2], 0, 0, 0)
+        rgb.write([1], 255, 255, 255)
+        time.sleep_ms(50)
+        rgb.write([0, 1, 2], 0, 0, 0)
+        time.sleep_ms(50)
+        rgb1_color()
+
+    speaker.click_tone("frameclick")
+    if event_user['touch1_click'] is not None:
+        event_user['touch1_click']()
+    else:
+        _thread.start_new_thread(rgb_change, [])
+        time.sleep_ms(10)
+        led.off()
+
+
+# b双击,最小亮度
+def touch2_dclick():
+    def rgb_change():
+        rgb.write([1], 255, 255, 255)
+        time.sleep_ms(50)
+        rgb.write([1], 0, 0, 0)
+        time.sleep_ms(50)
+        rgb.write([1], 255, 255, 255)
+        time.sleep_ms(50)
+        rgb1_color()
+
+    speaker.click_tone("framedclick")
+    if event_user['touch1_dclick'] is not None:
+        event_user['touch1_dclick']()
+    else:
+        _thread.start_new_thread(rgb_change, [])
+        time.sleep_ms(10)
+        led.set_lightness(0)
+
+
+# b长按
+def touch2_longClick():
+    speaker.click_tone("framepress")
+    if event_user['touch1_longClick'] is not None:
+        event_user['touch1_longClick']()
+    else:
+        global light_mode
+        light_mode += 1
+        led.light_mode(light_mode % 3)
 
 
 # 下滑，降低亮度
@@ -126,9 +135,9 @@ def touch1_to_touch2():
         time.sleep_ms(50)
         rgb.write([0, 1, 2], 0, 0, 0)
         time.sleep_ms(50)
-        rgb.write([1], 0, 0, 255)
+        rgb1_color()
 
-    speaker.click_tone("frameup")
+    speaker.click_tone("framedown")
     if event_user['touch1_to_touch2'] is not None:
         event_user['touch1_to_touch2']()
     else:
@@ -147,9 +156,9 @@ def touch2_to_touch1():
         time.sleep_ms(50)
         rgb.write([0, 1, 2], 0, 0, 0)
         time.sleep_ms(50)
-        rgb.write([1], 0, 0, 255)
+        rgb1_color()
 
-    speaker.click_tone("framedown")
+    speaker.click_tone("frameup")
     if event_user['touch2_to_touch1'] is not None:
         event_user['touch2_to_touch1']()
     else:
@@ -195,8 +204,8 @@ class touchEvent:
 
         self.touch1Event = ''
         self.touch2Event = ''
-        self.touch1 = Pin(2, Pin.IN)
-        self.touch2 = Pin(4, Pin.IN)
+        self.touch1 = Pin(2, Pin.IN)  # 按键a
+        self.touch2 = Pin(4, Pin.IN)  # 按键b
 
         self.touch1.irq(trigger=Pin.IRQ_RISING, handler=self.handleBtnA)
         self.touch2.irq(trigger=Pin.IRQ_RISING, handler=self.handleBtnB)
@@ -268,6 +277,12 @@ class touchEvent:
     def action_change(action, func):
         global event_user
         event_user[action] = func
+
+    def buttonA(self):
+        return self.touch2.value()
+
+    def buttonB(self):
+        return self.touch1.value()
 
 
 touch = touchEvent()

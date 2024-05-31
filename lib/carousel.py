@@ -1,9 +1,8 @@
 import time
 
 import array_ops
-from machine import Timer
 
-from ft import font
+import dbops
 from leight import led
 
 import _thread
@@ -46,10 +45,10 @@ class carousel:
         one_space = [[0], [0], [0], [0], [0], [0], [0], [0]]
         merry_go_list = one_space
         for i in self.text:
-            temp = array_ops.array_remove_empty_columns(font[i])
+            temp = array_ops.array_remove_empty_columns(dbops.get_font(i))
             merry_go_list = array_ops.array_concatenate_matrices(merry_go_list, temp)
             merry_go_list = array_ops.array_concatenate_matrices(merry_go_list, one_space)
-        merry_go_list = array_ops.array_concatenate_matrices(merry_go_list, font["off"])
+        merry_go_list = array_ops.array_concatenate_matrices(merry_go_list, dbops.get_font("off"))
         self.matrix = merry_go_list
         self.start_col = 0
         _thread.start_new_thread(self.get_rolling_submatrices, [])

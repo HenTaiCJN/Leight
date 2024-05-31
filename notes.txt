@@ -1,0 +1,6 @@
+数据库
+light_status 灯开关状态
+lightness 灯亮度
+sound_status 是否发声
+mode 台灯的模式（用户模式或默认模式）
+ble_code 当前连接蓝牙的代码
