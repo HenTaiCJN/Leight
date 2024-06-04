@@ -14,6 +14,7 @@ from leight import led
 # 初始化蓝牙
 ble = bluetooth.BLE()
 ble.active(True)
+ble.config(mtu=512)
 # 定义广播间隔
 
 # 定义厂家数据
@@ -38,7 +39,7 @@ class CBle:
         self.cache = ''
         ((self.handle,),) = ble.gatts_register_services((service,))
         self.event = {"info_get": self.info_get, "light_set": self.light_set, "lightness_set": self.lightness_set,
-                      "sound_set": self.sound_set, "code_flash": self.code_flash,"cmdInterface": self.cmdInterface,
+                      "sound_set": self.sound_set, "code_flash": self.code_flash, "cmdInterface": self.cmdInterface,
                       }
 
         ble.irq(self.bt_irq)
@@ -69,18 +70,20 @@ class CBle:
             value = ble.gatts_read(attr_handle)
             temp = value.decode('utf-8')
             if temp == '%%##end##%%':
+                print(self.cache)
                 try:
                     data = json.loads(self.cache)
                     print(data)
                 except:
                     print('Incorrect json format')
                     return
+                finally:
+                    self.cache = ''
                 type_code = data.get("type", None)
                 if type_code is not None and type_code in self.event.keys():
                     print('11111')
                     _thread.start_new_thread(self.event[type_code], [data.get("msg", None)])
                     print('22222')
-                    self.cache = ''
             else:
                 self.cache += temp
 
@@ -96,7 +99,11 @@ class CBle:
                     "sound_status": res.get("sound_status", ""),
                     "mode": res.get("mode", ""),
                     }
-        ble.gatts_notify(self.conn_handle, self.handle, json.dumps(new_data).encode('utf-8'))
+        data = json.dumps(new_data)
+        for i in range(0, len(data), 20):
+            ble.gatts_notify(self.conn_handle, self.handle, data[i:i + 20].encode('utf-8'))
+            time.sleep_ms(10)
+        ble.gatts_notify(self.conn_handle, self.handle, '%%##end##%%'.encode('utf-8'))
 
     @staticmethod
     def cmdInterface(msg):

@@ -138,6 +138,8 @@ class _led:
         dbops.updata('light_status', 1)
 
     def off(self):
+        if not dbops.get_int('light_status'):
+            return
         self.init()
 
         _thread.start_new_thread(self.animate, [0])
