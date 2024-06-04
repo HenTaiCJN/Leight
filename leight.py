@@ -215,13 +215,6 @@ class carousel:
         self.merry.stop()
 
 
-class ble:
-    def __init__(self):
-        from lib.ble import CBle
-        self.ble = CBle('leight')
-        self.ble.start_advertising()
-
-
 class _rgb:
     def __init__(self):
         p = Pin(22)

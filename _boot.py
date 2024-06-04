@@ -22,7 +22,7 @@ if 'db' not in os.listdir('/'):
     db[b'lightness'] = b'100'
     db[b'sound_status'] = b'1'
     db[b'mode'] = b'defaultmode'
-    db[b'ble_code']=b' '
+    db[b'ble_code'] = b' '
     db.flush()
     db.close()
     f.close()

@@ -2,6 +2,7 @@ import _thread
 import math
 import time
 
+import gc
 from machine import Pin, DAC
 
 import dbops
@@ -28,8 +29,11 @@ class speaker:
             time.sleep_us(int(1000000 / sample_rate))
         self.dac.write(0)
         Pin(15, Pin.OUT, value=1)
+        gc.collect()
 
     def click_tone(self, framename):
+        if not dbops.get_int('sound_status'):
+            return
         _thread.start_new_thread(self.tone_thread, [framename])
 
     def tone_thread(self, framename):
@@ -49,6 +53,6 @@ class speaker:
                 time.sleep_us(int(1000000 / 6000))
 
         self.dac.write(0)
-
         Pin(15, Pin.OUT, value=1)
+        gc.collect()
         _thread.exit()

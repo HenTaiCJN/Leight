@@ -1,26 +1,26 @@
-# import json
-#
-# from ft import font, frameclick, framedown, framepress, framedclick
-# import btree
-#
-# try:
-#     f = open("fontdb", "r+b")
-# except OSError:
-#     f = open("fontdb", "w+b")
-#
-# db = btree.open(f)
-# keys = font.keys()
-#
-# for i in keys:
-#     db[i.encode('utf-8')] = json.dumps(font[i]).encode('utf-8')
-# db[b'frameclick'] = json.dumps(frameclick).encode('utf-8')
-# db[b'framedown'] = json.dumps(framedown).encode('utf-8')
-# db[b'framepress'] = json.dumps(framepress).encode('utf-8')
-# db[b'framedclick'] = json.dumps(framedclick).encode('utf-8')
-#
-# db.flush()
-# db.close()
-# f.close()
-import dbops
-import fontdb
-print(dbops.get_font('a'))
+import btree
+import gc
+
+def get_status():
+    try:
+        f = open("db", "r+b")
+    except OSError:
+        f = open("db", "w+b")
+    db = btree.open(f)
+
+    res = {}
+
+    res['light_status'] = int(db[b'light_status'].decode('utf-8'))
+    res['lightness'] = int(db[b'lightness'].decode('utf-8'))
+    res['sound_status'] = int(db[b'sound_status'].decode('utf-8'))
+    res['mode'] = db[b'mode'].decode('utf-8')
+
+    print(gc.mem_free())
+    db.close()
+    f.close()
+
+    return res
+
+
+res = get_status()
+print(res)

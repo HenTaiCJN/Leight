@@ -1,6 +1,7 @@
 import dbops
 from button_action import touch
-from leight import ble, led, rgb, speaker
+from leight import led, rgb, speaker
+from lib.ble import CBle
 
 touch.action_change("touch1_click", None)  # 占位符，防止import被忽略
 
@@ -21,6 +22,6 @@ else:
     rgb.write([1], 0, 255, 0)
 
 # 开启蓝牙
-ble()
+CBle("leight").start_advertising()
 
 speaker.tone([1000], 300)
