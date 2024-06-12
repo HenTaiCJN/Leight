@@ -4,3 +4,6 @@ lightness 灯亮度
 sound_status 是否发声
 mode 台灯的模式（用户模式或默认模式）
 ble_code 当前连接蓝牙的代码
+
+Timer(4)用于语音检测
+Timer(3)用于用户自定义

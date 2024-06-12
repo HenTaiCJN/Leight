@@ -1,16 +1,15 @@
 import dbops
 from button_action import touch
-from leight import led, rgb, speaker
+from leight import led, rgb, speaker, voice
 from lib.ble import CBle
 
 touch.action_change("touch1_click", None)  # 占位符，防止import被忽略
-
+voice.bind('06', None)  # 占位符，防止import被忽略
 # 初始化灯的开关
 if int(dbops.get('light_status')):
     led.on()
 else:
     led.off()
-
 # 初始化灯的亮度
 led.set_lightness(int(dbops.get('lightness')))
 

@@ -6,10 +6,15 @@ import time
 
 class Radio:
     def __init__(self, code):
+        network.WLAN(network.STA_IF).active(True)
+
         self.func = None
         self.code = code
         self.msg = None
         # 初始化ESP-NOW
+        self.sta = network.WLAN(network.STA_IF)
+        self.sta.active(True)
+
         self.e = espnow.ESPNow()
         self.e.active(True)
 
@@ -18,10 +23,12 @@ class Radio:
         self.e.add_peer(self.device_mac)
 
     def on(self):
+        self.sta.active(True)
         self.e.active(True)
 
     def off(self):
         self.e.active(False)
+        self.sta.active(False)
 
     def send(self, msg):
         try:
@@ -36,7 +43,7 @@ class Radio:
                 self.e.add_peer(self.device_mac)
                 self.send(msg)
             elif err.args[1] == 'ESP_ERR_ESPNOW_IF':
-                network.WLAN(network.STA_IF).active(True)
+                self.sta.active(True)
                 self.send(msg)
             else:
                 raise err

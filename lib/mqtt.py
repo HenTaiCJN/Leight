@@ -1,9 +1,10 @@
+import _thread
 import gc
 import random
-
-from machine import Timer
+import time
 
 import umqtt.robust as mqtt
+from machine import Timer
 
 
 class MQTTClient:
@@ -35,7 +36,8 @@ class MQTTClient:
         cls._connected = True
         print('mqtt服务器连接成功')
         cls.client.set_callback(cls.callback)
-        Timer(3).init(period=100, mode=Timer.PERIODIC, callback=cls.check_msg)
+        _thread.start_new_thread(cls.check_msg, [])
+        # Timer(3).init(period=100, mode=Timer.PERIODIC, callback=cls.check_msg)
         gc.collect()
 
     @classmethod
@@ -70,23 +72,25 @@ class MQTTClient:
             cls.lock = False
 
     @classmethod
-    def check_msg(cls, a):
-        cls.msg_list = {}
-        cls.cnt += 1
-        if not cls.lock:
-            try:
-                cls.client.check_msg()
-            except Exception as e:
-                print('MQTT check msg error:' + str(e))
-                return
-        if cls.cnt == 200:
-            cls.cnt = 0
-            try:
-                cls.client.ping()  # 心跳消息
-                cls._connected = True
-            except Exception as e:
-                print('MQTT keepalive ping error:' + str(e))
-                cls._connected = False
+    def check_msg(cls):
+        while True:
+            cls.msg_list = {}
+            cls.cnt += 1
+            if not cls.lock:
+                try:
+                    cls.client.check_msg()
+                except Exception as e:
+                    print('MQTT check msg error:' + str(e))
+                    return
+            if cls.cnt == 200:
+                cls.cnt = 0
+                try:
+                    cls.client.ping()  # 心跳消息
+                    cls._connected = True
+                except Exception as e:
+                    print('MQTT keepalive ping error:' + str(e))
+                    cls._connected = False
+            time.sleep_ms(300)
 
     @classmethod
     def callback(cls, topic, msg):

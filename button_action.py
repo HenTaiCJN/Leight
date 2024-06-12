@@ -86,8 +86,8 @@ def touch2_click():
         rgb1_color()
 
     speaker.click_tone("frameclick")
-    if event_user['touch1_click'] is not None:
-        event_user['touch1_click']()
+    if event_user['touch2_click'] is not None:
+        event_user['touch2_click']()
     else:
         _thread.start_new_thread(rgb_change, [])
         time.sleep_ms(10)
@@ -106,8 +106,8 @@ def touch2_dclick():
         rgb1_color()
 
     speaker.click_tone("framedclick")
-    if event_user['touch1_dclick'] is not None:
-        event_user['touch1_dclick']()
+    if event_user['touch2_dclick'] is not None:
+        event_user['touch2_dclick']()
     else:
         _thread.start_new_thread(rgb_change, [])
         time.sleep_ms(10)
@@ -117,8 +117,8 @@ def touch2_dclick():
 # b长按
 def touch2_longClick():
     speaker.click_tone("framepress")
-    if event_user['touch1_longClick'] is not None:
-        event_user['touch1_longClick']()
+    if event_user['touch2_longClick'] is not None:
+        event_user['touch2_longClick']()
     else:
         global light_mode
         light_mode += 1

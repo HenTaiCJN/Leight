@@ -1,5 +1,7 @@
 import gc
 import os
+import brownout
+brownout.disable()
 from flashbdev import bdev
 import btree
 

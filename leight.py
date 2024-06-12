@@ -2,12 +2,13 @@
 不建议对_led类做任何修改
 """
 import _thread
+import binascii
 import random
 
 import gc
 import neopixel
 import time
-from machine import Pin, PWM, ADC
+from machine import Pin, PWM, ADC, UART, Timer
 
 import dbops
 
@@ -138,8 +139,6 @@ class _led:
         dbops.updata('light_status', 1)
 
     def off(self):
-        if not dbops.get_int('light_status'):
-            return
         self.init()
 
         _thread.start_new_thread(self.animate, [0])
@@ -241,6 +240,14 @@ class ldr:
         return self.adc.read()
 
 
+class sound:
+    def __init__(self):
+        self.pin = Pin(21, Pin.IN)
+
+    def read(self):
+        return self.pin.value()
+
+
 class hall:
     def __init__(self):
         self.pin = Pin(35, Pin.IN)
@@ -255,6 +262,29 @@ class radar:
 
     def read(self):
         return self.pin.value()
+
+
+class _voice:
+    def __init__(self):
+        self.msg_dit = {"01": led.on, "00": led.off, "02": led.up, "03": led.down, '04': None, '05': None, '06': None}
+        self.uart = UART(1, baudrate=115200, rx=36)
+        # _thread.start_new_thread(self.uart_rec, [])
+        Timer(4).init(period=1000, mode=Timer.PERIODIC, callback=self.uart_rec)
+
+    def uart_rec(self, e):
+        if self.uart.any():
+            uart_msg = binascii.hexlify(self.uart.readline()).decode()
+            self.uartcmd_do(uart_msg)
+
+    def uartcmd_do(self, msg):
+        if self.msg_dit.get(msg, None) is not None:
+            self.msg_dit[msg]()
+
+    def bind(self, no, func):
+        self.msg_dit[no] = func
+
+
+voice = _voice()
 
 
 class char:
@@ -320,3 +350,24 @@ class mqttclient:
     @classmethod
     def received(cls, topic, callback):
         cls.MQTTClient.Received(topic=topic, callback=callback)
+
+
+class radio:
+    def __init__(self, code):
+        from lib.radio import Radio
+        self.r = Radio(code)
+
+    def send(self, content):
+        self.r.send(content)
+
+    def on(self):
+        self.r.on()
+
+    def off(self):
+        self.r.off()
+
+    def setcb(self, func):
+        self.r.setcb(func)
+
+    def recv(self):
+        return self.r.recv()
